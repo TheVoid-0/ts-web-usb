@@ -1,7 +1,7 @@
 import { DeviceReadOptions } from './device-read-options';
 
 export interface DeviceSendOptions<TInput> {
-  // TODO: change data field name to payload
+  timeoutBeforeRead?: number;
   payload: TInput;
   emitEndpointNumber?: number;
   readOptions: DeviceReadOptions;

@@ -117,6 +117,7 @@ export class Device<TInput, TOutput extends BufferSource> {
     const sendResult = await this.communicator.send({
       readOptions: { ...readOptions, endpointNumber: readEndpointNumber },
       serializedData,
+      timeoutBeforeRead: sendOptions.timeoutBeforeRead,
       emitEndpointNumber: writeEndpointNumber,
     });
 

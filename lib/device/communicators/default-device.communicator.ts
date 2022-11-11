@@ -3,7 +3,7 @@ import { CombinedError } from '../../errors/combined.error';
 import { DeviceCommunicatorException } from '../../errors/exeptions/device-communicator.exception';
 import { GuardUtil } from '../../utils/guard.util';
 import { USBTransferResult } from './device-communicator.types';
-import { DeviceCommunicator, CommunicatorReadOptions, CommunicatorSendOptions } from './device.communicator';
+import { DeviceCommunicator, CommunicatorReadOptions } from './device.communicator';
 
 export class DefaultDeviceCommunicator extends DeviceCommunicator {
   constructor(usbDevice: USBDevice) {
@@ -62,15 +62,6 @@ export class DefaultDeviceCommunicator extends DeviceCommunicator {
     } catch (error) {
       return Result.fail(new DeviceCommunicatorException(DefaultDeviceCommunicator, 'Could not read data', error));
     }
-  }
-
-  async send(sendOptions: CommunicatorSendOptions): Promise<Result<DataView, Error>> {
-    const { serializedData, emitEndpointNumber, readOptions } = sendOptions;
-    const emitResult = await this.emit(serializedData, emitEndpointNumber);
-    if (emitResult.isFailure()) {
-      return emitResult;
-    }
-    return this.read(readOptions);
   }
 
   async clearHalt(direction: USBDirection, endpointNumber: number): Promise<Result<void, DeviceCommunicatorException>> {

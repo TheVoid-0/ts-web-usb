@@ -1,6 +1,7 @@
 import { Result } from '../../@core/result/result';
 
 export interface CommunicatorSendOptions {
+  timeoutBeforeRead?: number;
   serializedData: BufferSource;
   emitEndpointNumber: number;
   readOptions: CommunicatorReadOptions;
@@ -27,11 +28,24 @@ export interface CommunicatorReadOptions {
 export abstract class DeviceCommunicator {
   constructor(protected readonly usbDevice: USBDevice) {}
 
+  protected timeoutBeforeReadOnSend = 200;
+
   exposeNativeDevice(): USBDevice {
     return this.usbDevice;
   }
 
   abstract emit(serializedData: BufferSource, endpointNumber: number): Promise<Result<USBOutTransferResult>>;
   abstract read(readOptions: CommunicatorReadOptions): Promise<Result<DataView, Error>>;
-  abstract send(sendOptions: CommunicatorSendOptions): Promise<Result<DataView>>;
+
+  async send(sendOptions: CommunicatorSendOptions): Promise<Result<DataView, Error>> {
+    const { serializedData, emitEndpointNumber, readOptions } = sendOptions;
+    const emitResult = await this.emit(serializedData, emitEndpointNumber);
+    if (emitResult.isFailure()) {
+      return emitResult;
+    }
+    if (this.timeoutBeforeReadOnSend > 0) {
+      await new Promise(resolve => setTimeout(resolve, this.timeoutBeforeReadOnSend));
+    }
+    return this.read(readOptions);
+  }
 }
