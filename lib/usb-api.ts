@@ -12,15 +12,31 @@ export class USBApi {
 
   async findPairedDevice(filterOptions: USBDeviceFilter[]): Promise<USBDevice | undefined> {
     const pairedDevices = await this.listPairedDevices();
-    const pairedDevice = pairedDevices.find(device => {
+    const pairedDevice = pairedDevices.filter(device => {
       return filterOptions.some(filter => {
-        return device.productId === filter.productId && device.vendorId === filter.vendorId;
+        return this.matchDeviceFilter(device, filter);
       });
     });
-    if (!pairedDevice) {
+    // If more than one device is found, returns none, so that the user can choose the device
+    if (pairedDevice.length > 1) {
       return undefined;
     }
-    return pairedDevice;
+    return pairedDevice[0];
+  }
+
+  private matchDeviceFilter(device: USBDevice, filter: USBDeviceFilter): boolean {
+    const filterkeyToDeviceKeyMap: Record<keyof USBDeviceFilter, keyof USBDevice> = {
+      classCode: 'deviceClass',
+      protocolCode: 'deviceProtocol',
+      productId: 'productId',
+      vendorId: 'vendorId',
+      serialNumber: 'serialNumber',
+      subclassCode: 'deviceSubclass',
+    };
+    const keys = Object.keys(filter) as unknown as Array<keyof USBDeviceFilter>;
+    return keys.every(key => {
+      return device[filterkeyToDeviceKeyMap[key]] === filter[key];
+    });
   }
 
   listPairedDevices(): Promise<USBDevice[]> {
