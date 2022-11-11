@@ -1,0 +1,19 @@
+# Compiled output
+/dist
+/node_modules
+
+# Packages
+yarn.lock
+
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+
+# Tests
+/coverage
+/.nyc_output
+
+
