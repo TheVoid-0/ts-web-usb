@@ -14,7 +14,7 @@ export class JsonToUint8Serializer extends DeviceSerializer<unknown, Uint8Array>
 
   deserialize(bytes: DataView): unknown {
     try {
-      const json = new TextDecoder().decode(bytes);
+      const json = new TextDecoder().decode(new DataView(bytes.buffer, 2));
       return JSON.parse(json);
     } catch (error) {
       throw new DeviceSerializerException(JsonToUint8Serializer, error);
